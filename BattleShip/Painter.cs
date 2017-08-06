@@ -1,0 +1,6 @@
+﻿namespace BattleShipp
+{
+    class Painter
+    {
+    }
+}
