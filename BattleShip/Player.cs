@@ -37,14 +37,17 @@ namespace BattleShipp
         {
             if(playerType == PlayerType)
             {
-                if(Field[y, x] == CellType.FogOverShip || Field[y, x] == CellType.Ship)
+                switch (Field[y, x])
                 {
-                    Field[y, x] = CellType.DamagedShip;
-                    CheckDestroy(y, x);
-                }
-                if(Field[y, x] == CellType.FogOverWater || Field[y, x] == CellType.Water)
-                {
-                    Field[y, x] = CellType.EmptyWater;
+                    case CellType.FogOverShip:
+                    case CellType.Ship:
+                        Field[y, x] = CellType.DamagedShip;
+                        CheckDestroy(y, x);
+                        break;
+                    case CellType.FogOverWater:
+                    case CellType.Water:
+                        Field[y, x] = CellType.EmptyWater;
+                        break;
                 }
                 //if(Field[y, x] == CellType.)
             }
@@ -54,16 +57,14 @@ namespace BattleShipp
         {
             var ships = OneDeckeds.Union(DoubleDecks).Union(ThreeDecks).Union(FourDecks).Union(FiveDecks);
             var damagedShips = (from ship in ships where ship.ContainsDeck(row, column) select ship).ToArray();
-            if(damagedShips. Length != 0)
+            if(damagedShips.Length != 0)
             {
                 var damagedShip = damagedShips[0];
                 (from deck in damagedShip.Decks where deck.Location == new Point(column, row) select deck).ToArray()[0].Destroyed = true;
-                //destroyedDeck.Destroyed = true;
                 if (damagedShip.Destroyed())
                 {
                     DestroyShip(damagedShip);
                 }
-                
             }
         }
 
@@ -76,16 +77,24 @@ namespace BattleShipp
                 for (var column = ship.Decks[0].Location.X - 1; column <= ship.Decks[0].Location.X + 1 + (horizontalDirection ? length : 0); column++)
                 {
                     if (!FieldGenerator.CellInField(Field.GetLength(1), Field.GetLength(0), column, row)) continue;
-                    if(Field[row, column] == CellType.DamagedShip)
+                    switch (Field[row, column])
                     {
-                        Field[row, column] = CellType.DestroyedShip;
-                    }
-                    if(Field[row, column] == CellType.Water || Field[row, column] == CellType.FogOverWater)
-                    {
-                        Field[row, column] = CellType.EmptyWater;
+                        case CellType.DamagedShip:
+                            Field[row, column] = CellType.DestroyedShip;
+                            break;
+                        case CellType.Water:
+                        case CellType.FogOverWater:
+                            Field[row, column] = CellType.EmptyWater;
+                            break;
                     }
                 }
             }
+        }
+
+        public bool Lose()
+        {
+            var ships = OneDeckeds.Union(DoubleDecks).Union(ThreeDecks).Union(FourDecks).Union(FiveDecks);
+            return ships.All(ship => ship.Destroyed());
         }
 
         public Ship[] OneDeckeds { get; set; }

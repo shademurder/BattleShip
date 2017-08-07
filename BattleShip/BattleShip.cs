@@ -24,7 +24,6 @@ namespace BattleShipp
         private int _horizontalSpace = 40;
         private int _spaceBetweenFields = 15;
         private Color _borderColor = Color.Black;
-        private Color _cellBackground = Color.White;
         private int _oneDeckeds = 4;
         private int _doubleDecks = 3;
         private int _threeDecks = 2;
@@ -32,6 +31,8 @@ namespace BattleShipp
         private int _fiveDecks = 0;
         private Player _player;
         private Player _pc;
+        private IArtificialIntelligence _artificialIntelligence = new DefaultAI();
+        private bool _aiMove = false;
 
         /// <summary>
         /// Количество ячеек по вертикали
@@ -107,14 +108,7 @@ namespace BattleShipp
         /// <summary>
         /// Цвет фона ячеек
         /// </summary>
-        public Color CellBackground
-        {
-            get { return _cellBackground; }
-            set
-            {
-                _cellBackground = value;
-            }
-        }
+        public Color CellBackground { get; set; } = Color.White;
 
         /// <summary>
         /// Флаг автоматической генерации местоположения кораблей на поле
@@ -291,6 +285,24 @@ namespace BattleShipp
             }
         }
 
+        internal IArtificialIntelligence ArtificialIntelligence
+        {
+            get
+            {
+                return _artificialIntelligence;
+            }
+
+            set
+            {
+                if (value != null)
+                {
+                    _artificialIntelligence = value;
+                }
+            }
+        }
+
+        public bool UseDefaultCheckingFieldSize { get; set; } = true;
+
 
         /// <summary>
         /// Выстрел по полю
@@ -304,17 +316,17 @@ namespace BattleShipp
         /// <returns></returns>
         private bool CheckFieldSize()
         {
+            if (!UseDefaultCheckingFieldSize) return true;
             //Для установки каждого корабля берётся дополнительно 1 клетка, чтобы избежать полного заполнения поля
             //Но лучше дополнительно из количества ячеек игрового поля вычитать 10%
-            //var fieldSpace = AVerticalCells * AHorizontalCells;
-            //var shipsSpace = OneDeckShips * 7 + DoubleDeckShips * 9 + ThreeDeckShips * 11 + FourDeckShips * 13 +
-            //                 FiveDeckShips * 15;//145 клеток для 5\4\3\2\1 и 90 для 4\3\2\1
-            //if (fieldSpace < shipsSpace)
-            //{
-            //     MessageBox.Show(@"Мало места для выбранного количества кораблей");
-            //}
-            //return fieldSpace >= shipsSpace;
-            return true;
+            var fieldSpace = AVerticalCells * AHorizontalCells;
+            var shipsSpace = OneDeckShips * 6 + DoubleDeckShips * 8 + ThreeDeckShips * 10 + FourDeckShips * 12 +
+                             FiveDeckShips * 14;//130 клеток для 5\4\3\2\1 и 80 для 4\3\2\1\0
+            if (fieldSpace < shipsSpace)
+            {
+                //MessageBox.Show(@"Мало места для выбранного количества кораблей");
+            }
+            return fieldSpace >= shipsSpace;
         }
 
         /// <summary>
@@ -422,16 +434,46 @@ namespace BattleShipp
             }
         }
 
+        private void BotMove()
+        {
+            var nextPoint = ArtificialIntelligence.GetNextPoint(_player);
+            MessageBox.Show($"({nextPoint.X};{nextPoint.Y})");
+            if (_player.Field[nextPoint.Y, nextPoint.X] == CellType.Ship)
+            {
+                OnShot(nextPoint.X, nextPoint.Y, PlayerType.Player);
+                if (_player.Lose())
+                {
+                    EndGame();
+                    MessageBox.Show(@"Вы проиграли!");
+                    return;
+                }
+                BotMove();
+            }
+            else
+            {
+                OnShot(nextPoint.X, nextPoint.Y, PlayerType.Player);
+                _aiMove = false;
+            }
+        }
+
         /// <summary>
         /// Генерация игровых полей
         /// </summary>
-        public void NewGame()
+        public bool NewGame()
         {
             _player = FieldGenerator.TryGenerateField(AHorizontalCells, AVerticalCells, _fiveDecks, _fourDecks, _threeDecks, _doubleDecks, _oneDeckeds, PlayerType.Player, 10, 10);
             _pc = FieldGenerator.TryGenerateField(AHorizontalCells, AVerticalCells, _fiveDecks, _fourDecks, _threeDecks, _doubleDecks, _oneDeckeds, PlayerType.Pc, 10, 10);
+            if (_player == null || _pc == null) return false;
             _player.NewGame(this);
             _pc.NewGame(this);
             FieldGenerator.HideField(_pc.Field);
+            return true;
+        }
+
+        private void EndGame()
+        {
+            _player.EndGame(this);
+            _pc.EndGame(this);
         }
 
         protected override void OnPaint(PaintEventArgs e)
@@ -454,14 +496,36 @@ namespace BattleShipp
 
         protected override void OnMouseClick(MouseEventArgs e)
         {
-            var fieldWidth = (BorderSize + CellSize.Width) * AHorizontalCells + BorderSize;
-            var fieldHeight = (BorderSize + CellSize.Height) * AVerticalCells + BorderSize;
-            var leftShift = HorizontalSpace + SpaceBetweenFields + fieldWidth;
-            if (e.X > leftShift && e.X <= leftShift + fieldWidth && e.Y > VerticalSpace && e.Y <= VerticalSpace + fieldHeight)
+            if (!_aiMove)
             {
-                var point = GetClickLocation(new Point(e.X - leftShift, e.Y - VerticalSpace));
-                OnShot(point.X, point.Y, PlayerType.Pc);
-                //MessageBox.Show($"({point.X};{point.Y})");
+                var fieldWidth = (BorderSize + CellSize.Width)*AHorizontalCells + BorderSize;
+                var fieldHeight = (BorderSize + CellSize.Height)*AVerticalCells + BorderSize;
+                var leftShift = HorizontalSpace + SpaceBetweenFields + fieldWidth;
+                if (e.X > leftShift && e.X <= leftShift + fieldWidth && e.Y > VerticalSpace &&
+                    e.Y <= VerticalSpace + fieldHeight)
+                {
+                    var point = GetClickLocation(new Point(e.X - leftShift, e.Y - VerticalSpace));
+                    if (_pc.Field[point.Y, point.X] == CellType.FogOverShip)
+                    {
+                        OnShot(point.X, point.Y, PlayerType.Pc);
+                        if (_pc.Lose())
+                        {
+                            _aiMove = true;
+                            EndGame();
+                            MessageBox.Show(@"Вы победили!");
+                        }
+                    }
+                    else if (_pc.Field[point.Y, point.X] == CellType.FogOverWater)
+                    {
+                        OnShot(point.X, point.Y, PlayerType.Pc);
+                        _aiMove = true;
+                        BotMove();
+                    }
+                    else
+                    {
+                        MessageBox.Show(@"WTF?");
+                    }
+                }
             }
             base.OnMouseClick(e);
         }

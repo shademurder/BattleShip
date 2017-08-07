@@ -85,7 +85,7 @@ namespace BattleShipp
                 var randValue = Random.Next(freeSpace);
                 randValue = GetShiftedRandomValue(field, randValue, horizontalCells, verticalCells);
                 var y = randValue / horizontalCells;
-                var x = randValue % horizontalCells - 1;
+                var x = randValue % horizontalCells;//-1
                 if (PlaceFree(field, horizontalCells, verticalCells, x, y, ship.Decks.Length - 1, 0))
                 {
                     SetShipLocation(ship, field, new Point(x, y), true);
@@ -210,13 +210,14 @@ namespace BattleShipp
             {
                 for (var y = 0; y < verticalCells; y++)
                 {
-                    if (field[y, x] == CellType.Ship)
+                    switch (field[y, x])
                     {
-                        field[y, x] = CellType.FogOverShip;
-                    }
-                    if (field[y, x] == CellType.Water)
-                    {
-                        field[y, x] = CellType.FogOverWater;
+                        case CellType.Ship:
+                            field[y, x] = CellType.FogOverShip;
+                            break;
+                        case CellType.Water:
+                            field[y, x] = CellType.FogOverWater;
+                            break;
                     }
                 }
             }

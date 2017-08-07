@@ -41,7 +41,7 @@ namespace BattleShipp
 
         public bool ContainsDeck(int row, int column)
         {
-            return Decks != null ? (from deck in Decks where deck.Location == new System.Drawing.Point(column, row) select deck).ToArray().Length != 0 : false;
+            return Decks != null && (from deck in Decks where deck.Location == new System.Drawing.Point(column, row) select deck).ToArray().Length != 0;
         }
 
         //public bool DestroyDeck(int row, int column)
