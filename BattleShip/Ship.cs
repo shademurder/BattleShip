@@ -39,16 +39,16 @@ namespace BattleShipp
             return true;
         }
 
+        /// <summary>
+        /// Определяет, есть ли в этом корабле палуба с указанными координатами
+        /// </summary>
+        /// <param name="row">Координата по y</param>
+        /// <param name="column">Координата по x</param>
+        /// <returns>true, если такая палуба есть в корабле</returns>
         public bool ContainsDeck(int row, int column)
         {
             return Decks != null && (from deck in Decks where deck.Location == new System.Drawing.Point(column, row) select deck).ToArray().Length != 0;
         }
-
-        //public bool DestroyDeck(int row, int column)
-        //{
-        //    if (Decks == null) return false;
-        //    for()
-        //}
 
         /// <summary>
         /// Получает направление корабля

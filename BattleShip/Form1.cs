@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
+using BattleShipp;
 
 namespace BattleShip
 {
@@ -12,27 +13,15 @@ namespace BattleShip
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            //Task<int> task = Task<int>.Factory.StartNew(Method);
-            //int a = task.Result;
+            var ai = new SmartAI();
+            battleShip1.ArtificialIntelligence = ai;
             battleShip1.NewGame();
+            battleShip1.EndGame += BattleShip1_EndGame;
         }
 
-        //private int Method()
-        //{
-        //    return 1;
-        //}
-
-        //private void Method2(params int[] a)
-        //{
-        //    TaskScheduler taskScheduler = TaskScheduler.FromCurrentSynchronizationContext();
-        //    var task = Task<int>.Factory.StartNew(Method);
-        //    task.ContinueWith((t, o) => Method3(task.Result), null, taskScheduler);
-        //}
-
-        //private void Method3(int c)
-        //{
-
-        //}
-
+        private void BattleShip1_EndGame(PlayerType obj)
+        {
+            battleShip1.NewGame();
+        }
     }
 }

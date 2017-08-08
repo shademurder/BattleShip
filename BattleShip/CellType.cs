@@ -1,5 +1,8 @@
 ﻿namespace BattleShipp
 {
+    /// <summary>
+    /// Виды ячеек поля
+    /// </summary>
     enum CellType
     {
         FogOverWater = 0,//туман над водой

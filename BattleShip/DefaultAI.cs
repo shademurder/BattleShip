@@ -2,8 +2,13 @@
 
 namespace BattleShipp
 {
-    class DefaultAI : IArtificialIntelligence
+    class DefaultAI : TypicalArtificialIntelligence, IArtificialIntelligence
     {
+        /// <summary>
+        /// Анализирует игровое поле игрока и возвращает следующую точку для выстрела
+        /// </summary>
+        /// <param name="player">Игрок</param>
+        /// <returns>Точка для выстрела</returns>
         public Point GetNextPoint(Player player)
         {
             var damagedPoint = GetDamagedPoint(player.Field);
@@ -15,20 +20,24 @@ namespace BattleShipp
             var nextPoint = GetPoint(player.Field, horizontalDirection, damagedPoint);
             return nextPoint.X == -1 ? GetRandomPoint(player.Field) : nextPoint;
         }
-
+        /// <summary>
+        /// Получает точку для выстрела "наугад"
+        /// </summary>
+        /// <param name="field">Игровое поле</param>
+        /// <returns>Точка для выстрела</returns>
         private Point GetRandomPoint(CellType[,] field)
         {
-            //var horizontalCells = field.GetLength(1);
-            //var verticalCells = field.GetLength(0);
             var freeSpace = GetFreeSpace(field);
             var randomValue = FieldGenerator.Random.Next(freeSpace);
             return RandomToPoint(field, randomValue);
-            //randomValue += horizontalCells*verticalCells - freeSpace;
-            //var y = randomValue / horizontalCells;
-            //var x = randomValue % horizontalCells;
-            //return new Point(x, y);
         }
 
+        /// <summary>
+        /// Переводит число в точку на игровом поле
+        /// </summary>
+        /// <param name="field">Игровое поле</param>
+        /// <param name="randomValue">Случайное число</param>
+        /// <returns>Точка для выстрела</returns>
         private Point RandomToPoint(CellType[,] field, int randomValue)
         {
             var horizontalCells = field.GetLength(1);
@@ -45,10 +54,14 @@ namespace BattleShipp
                     randomValue--;
                 }
             }
-            //Возвращать рекурсивно RandomToPoint?
             return new Point(horizontalCells - 1, verticalCells - 1);
         }
 
+        /// <summary>
+        /// Получает количество пустых клеток на поле
+        /// </summary>
+        /// <param name="field">Игровое поле</param>
+        /// <returns>Количество пустых клеток</returns>
         private int GetFreeSpace(CellType[,] field)
         {
             var horizontalCells = field.GetLength(1);
@@ -67,138 +80,6 @@ namespace BattleShipp
             return freeSpace;
         }
 
-        private Point GetPoint(CellType[,] field, bool horizontalDirection, Point damagedPoint)
-        {
-            var horizontalCells = field.GetLength(1);
-            var verticalCells = field.GetLength(0);
-            var shift = 0;
-            while ((horizontalDirection ? damagedPoint.X : damagedPoint.Y) + shift >= 0)
-            {
-                shift--;
-                if ((horizontalDirection ? damagedPoint.Y : damagedPoint.Y + shift) < 0 || (horizontalDirection ? damagedPoint.X + shift : damagedPoint.X) < 0)
-                {
-                    break;
-                }
-                var cell = field[(horizontalDirection ? damagedPoint.Y : damagedPoint.Y + shift), (horizontalDirection ? damagedPoint.X + shift : damagedPoint.X)];
-                if (cell == CellType.EmptyWater)
-                {
-                    break;
-                }
-                if (cell != CellType.DamagedShip)
-                {
-                    return new Point((horizontalDirection ? damagedPoint.X + shift : damagedPoint.X), (horizontalDirection ? damagedPoint.Y : damagedPoint.Y + shift));
-                }
-            }
-            shift = 0;
-            while ((horizontalDirection ? damagedPoint.X : damagedPoint.Y) + shift < (horizontalDirection ? horizontalCells : verticalCells))
-            {
-                shift++;
-                if ((horizontalDirection ? damagedPoint.Y : damagedPoint.Y + shift) >= verticalCells || (horizontalDirection ? damagedPoint.X + shift : damagedPoint.X) >= horizontalCells)
-                {
-                    break;
-                }
-                var cell = field[(horizontalDirection ? damagedPoint.Y : damagedPoint.Y + shift), (horizontalDirection ? damagedPoint.X + shift : damagedPoint.X)];
-                if (cell == CellType.EmptyWater)
-                {
-                    break;
-                }
-                if (cell != CellType.DamagedShip)
-                {
-                    return new Point((horizontalDirection ? damagedPoint.X + shift : damagedPoint.X), (horizontalDirection ? damagedPoint.Y : damagedPoint.Y + shift));
-                }
-            }
-            return new Point(-1, -1);
-        }
-
-        private Point GetDamagedPoint(CellType[,] field)
-        {
-            var horizontalCells = field.GetLength(1);
-            var verticalCells = field.GetLength(0);
-            for (var row = 0; row < verticalCells; row++)
-            {
-                for (var column = 0; column < horizontalCells; column++)
-                {
-                    if (field[row, column] == CellType.DamagedShip)
-                    {
-                        return new Point(column, row);
-                    }
-                }
-            }
-            return new Point(-1, -1);
-        }
-
-        /// <summary>
-        /// Получает направление для поиска корабля
-        /// </summary>
-        /// <param name="field"></param>
-        /// <param name="damagedPoint"></param>
-        /// <returns>true - горизонтальное, false - вертикальное</returns>
-        private bool GetDirection(CellType[,] field, Point damagedPoint)
-        {
-            var horizontalCells = field.GetLength(1);
-            var verticalCells = field.GetLength(0);
-            var weight = 0;
-            if (damagedPoint.Y != 0)
-            {
-                if (field[damagedPoint.Y - 1, damagedPoint.X] == CellType.DamagedShip)
-                {
-                    return false;
-                }
-                if (field[damagedPoint.Y - 1, damagedPoint.X] == CellType.EmptyWater)
-                {
-                    weight--;
-                }
-            }
-            else
-            {
-                weight--;
-            }
-            if (damagedPoint.Y < verticalCells - 1)
-            {
-                if (field[damagedPoint.Y + 1, damagedPoint.X] == CellType.DamagedShip)
-                {
-                    return false;
-                }
-                if (field[damagedPoint.Y + 1, damagedPoint.X] == CellType.EmptyWater)
-                {
-                    weight--;
-                }
-            }
-            else
-            {
-                weight--;
-            }
-            if (damagedPoint.X != 0)
-            {
-                if (field[damagedPoint.Y, damagedPoint.X - 1] == CellType.DamagedShip)
-                {
-                    return true;
-                }
-                if (field[damagedPoint.Y, damagedPoint.X - 1] == CellType.EmptyWater)
-                {
-                    weight++;
-                }
-            }
-            else
-            {
-                weight++;
-            }
-            if (damagedPoint.X < horizontalCells - 1)
-            {
-                if (field[damagedPoint.Y, damagedPoint.X + 1] == CellType.DamagedShip)
-                {
-                    return true;
-                }
-                if (field[damagedPoint.Y, damagedPoint.X + 1] == CellType.EmptyWater)
-                {
-                    weight++;
-                }
-            }
-            else
-            {
-                weight++;
-            }
-            return weight <= 0;
-        }
+        
     }
 }

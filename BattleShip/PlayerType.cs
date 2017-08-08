@@ -1,5 +1,8 @@
 ﻿namespace BattleShipp
 {
+    /// <summary>
+    /// Типы игроков
+    /// </summary>
     enum PlayerType
     {
         Pc = 0,

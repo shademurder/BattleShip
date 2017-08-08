@@ -23,36 +23,84 @@ namespace BattleShipp
             PlayerType = playerType;
         }
 
+        /// <summary>
+        /// Однопалубные корабли
+        /// </summary>
+        public Ship[] OneDeckeds { get; set; }
+        /// <summary>
+        /// Двухпалубные корабли
+        /// </summary>
+        public Ship[] DoubleDecks { get; set; }
+        /// <summary>
+        /// Трёхпалубные корабли
+        /// </summary>
+        public Ship[] ThreeDecks { get; set; }
+        /// <summary>
+        /// Четырёхпалубные корабли
+        /// </summary>
+        public Ship[] FourDecks { get; set; }
+        /// <summary>
+        /// Пятипалубные корабли
+        /// </summary>
+        public Ship[] FiveDecks { get; set; }
+        /// <summary>
+        /// Поле игрока
+        /// </summary>
+        public CellType[,] Field { get; set; }
+        /// <summary>
+        /// Тип игрока
+        /// </summary>
+        public PlayerType PlayerType { get; set; }
+
+        /// <summary>
+        /// Начало новой игры
+        /// Подписаться на событие Shot указанной игры
+        /// </summary>
+        /// <param name="parrent"></param>
         public void NewGame(BattleShip parrent)
         {
             parrent.Shot += Parrent_Shot;
         }
 
+        /// <summary>
+        /// Конец игры
+        /// Отписаться от события Shot
+        /// </summary>
+        /// <param name="parrent"></param>
         public void EndGame(BattleShip parrent)
         {
             parrent.Shot -= Parrent_Shot;
         }
 
+        /// <summary>
+        /// Обработка выстрела по полю
+        /// </summary>
+        /// <param name="x">Координата по оси X</param>
+        /// <param name="y">Координата по оси Y</param>
+        /// <param name="playerType">Тип игрока, по полю которого был совершён выстрел</param>
         private void Parrent_Shot(int x, int y, PlayerType playerType)
         {
-            if(playerType == PlayerType)
+            if (playerType != PlayerType) return;
+            switch (Field[y, x])
             {
-                switch (Field[y, x])
-                {
-                    case CellType.FogOverShip:
-                    case CellType.Ship:
-                        Field[y, x] = CellType.DamagedShip;
-                        CheckDestroy(y, x);
-                        break;
-                    case CellType.FogOverWater:
-                    case CellType.Water:
-                        Field[y, x] = CellType.EmptyWater;
-                        break;
-                }
-                //if(Field[y, x] == CellType.)
+                case CellType.FogOverShip:
+                case CellType.Ship:
+                    Field[y, x] = CellType.DamagedShip;
+                    CheckDestroy(y, x);
+                    break;
+                case CellType.FogOverWater:
+                case CellType.Water:
+                    Field[y, x] = CellType.EmptyWater;
+                    break;
             }
         }
 
+        /// <summary>
+        /// Проверяет, был ли разрушен корабль после выстрела по указанным координатам
+        /// и при необходимости помечает все точки вокруг него
+        /// </summary>
+        /// <param name="row">Координата по y</param>
+        /// <param name="column">Координата по x</param>
         private void CheckDestroy(int row, int column)
         {
             var ships = OneDeckeds.Union(DoubleDecks).Union(ThreeDecks).Union(FourDecks).Union(FiveDecks);
@@ -68,6 +116,10 @@ namespace BattleShipp
             }
         }
 
+        /// <summary>
+        /// Помечает корабль на поле, как разрушенный и выделяет вокруг
+        /// </summary>
+        /// <param name="ship">Уничтоженный корабль</param>
         private void DestroyShip(Ship ship)
         {
             var length = ship.Decks.Length - 1;
@@ -91,24 +143,16 @@ namespace BattleShipp
             }
         }
 
+        /// <summary>
+        /// Проверяет, были ли разрушены все корабли игрока
+        /// </summary>
+        /// <returns>true, если все корабли были разрушены</returns>
         public bool Lose()
         {
             var ships = OneDeckeds.Union(DoubleDecks).Union(ThreeDecks).Union(FourDecks).Union(FiveDecks);
             return ships.All(ship => ship.Destroyed());
         }
-
-        public Ship[] OneDeckeds { get; set; }
-
-        public Ship[] DoubleDecks { get; set; }
-
-        public Ship[] ThreeDecks { get; set; }
-
-        public Ship[] FourDecks { get; set; }
-
-        public Ship[] FiveDecks { get; set; }
-
-        public CellType[,] Field { get; set; }
-
-        internal PlayerType PlayerType { get; set; }
+        
+        
     }
 }

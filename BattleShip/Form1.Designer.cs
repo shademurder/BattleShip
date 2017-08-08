@@ -28,33 +28,35 @@
         /// </summary>
         private void InitializeComponent()
         {
+            BattleShipp.DefaultAI defaultAI1 = new BattleShipp.DefaultAI();
             this.battleShip1 = new BattleShipp.BattleShip();
             this.SuspendLayout();
             // 
             // battleShip1
             // 
-            this.battleShip1.AHorizontalCells = 16;
-            this.battleShip1.AVerticalCells = 11;
+            this.battleShip1.AHorizontalCells = 10;
+            this.battleShip1.ArtificialIntelligence = defaultAI1;
+            this.battleShip1.AVerticalCells = 10;
             this.battleShip1.BorderColor = System.Drawing.Color.Black;
             this.battleShip1.CellBackground = System.Drawing.Color.White;
             this.battleShip1.CellSize = new System.Drawing.Size(20, 20);
             this.battleShip1.DamagedShipColor = System.Drawing.Color.Red;
             this.battleShip1.DestroedShipColor = System.Drawing.Color.DarkRed;
-            this.battleShip1.DoubleDeckShips = 5;
+            this.battleShip1.DoubleDeckShips = 3;
             this.battleShip1.EmptyWaterColor = System.Drawing.Color.Aquamarine;
-            this.battleShip1.FiveDeckShips = 2;
+            this.battleShip1.FiveDeckShips = 0;
             this.battleShip1.FogColor = System.Drawing.Color.Gray;
-            this.battleShip1.FourDeckShips = 3;
+            this.battleShip1.FourDeckShips = 1;
             this.battleShip1.HorizontalSpace = 40;
             this.battleShip1.Location = new System.Drawing.Point(13, 13);
             this.battleShip1.Name = "battleShip1";
-            this.battleShip1.OneDeckShips = 6;
-            this.battleShip1.RandomField = true;
+            this.battleShip1.OneDeckShips = 4;
             this.battleShip1.ShipColor = System.Drawing.Color.LimeGreen;
-            this.battleShip1.Size = new System.Drawing.Size(769, 292);
+            this.battleShip1.Size = new System.Drawing.Size(517, 271);
             this.battleShip1.SpaceBetweenFields = 15;
             this.battleShip1.TabIndex = 0;
-            this.battleShip1.ThreeDeckShips = 4;
+            this.battleShip1.ThreeDeckShips = 2;
+            this.battleShip1.UseDefaultCheckingFieldSize = true;
             this.battleShip1.VerticalSpace = 30;
             this.battleShip1.WaterColor = System.Drawing.Color.LightSkyBlue;
             // 
