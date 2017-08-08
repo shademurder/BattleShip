@@ -478,6 +478,7 @@ namespace BattleShipp
             _player.NewGame(this);
             _pc.NewGame(this);
             FieldGenerator.HideField(_pc.Field);
+            _aiMove = false;
             Refresh();
             return true;
         }

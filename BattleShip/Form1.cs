@@ -19,8 +19,9 @@ namespace BattleShip
             battleShip1.EndGame += BattleShip1_EndGame;
         }
 
-        private void BattleShip1_EndGame(PlayerType obj)
+        private void BattleShip1_EndGame(PlayerType playerType)
         {
+            MessageBox.Show(playerType == PlayerType.Player ? "Вы победили!" : "Вы проиграли!");
             battleShip1.NewGame();
         }
     }

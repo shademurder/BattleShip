@@ -8,7 +8,7 @@ namespace BattleShipp
         public static readonly Random Random = new Random();
 
         /// <summary>
-        /// 
+        /// Создаёт игрока и генерирует все корабли на его поле, используя максимальное число попыток генерации поля
         /// </summary>
         /// <param name="horizontalCells">Количество ячеек на поле по горизонтали</param>
         /// <param name="verticalCells">Количество ячеек на поле по вертикали</param>
