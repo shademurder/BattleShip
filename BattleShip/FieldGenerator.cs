@@ -106,14 +106,28 @@ namespace BattleShipp
                 randValue = GetShiftedRandomValue(field, randValue);
                 var y = randValue / horizontalCells;
                 var x = randValue % horizontalCells;
-                if (PlaceFree(field, x, y, ship.Decks.Length - 1, 0))
+                if(Random.Next(2) == 0)//дополнительная генерация направлений
                 {
+                    if (PlaceFree(field, x, y, ship.Decks.Length - 1, 0))
+                    {
+                        SetShipLocation(ship, field, new Point(x, y), true);
+                        return;
+                    }
+                    if (!PlaceFree(field, x, y, 0, ship.Decks.Length - 1)) continue;
+                    SetShipLocation(ship, field, new Point(x, y), false);
+                    return;
+                }
+                else
+                {
+                    if (PlaceFree(field, x, y, 0, ship.Decks.Length - 1))
+                    {
+                        SetShipLocation(ship, field, new Point(x, y), false);
+                        return;
+                    }
+                    if (!PlaceFree(field, x, y, ship.Decks.Length - 1, 0)) continue;
                     SetShipLocation(ship, field, new Point(x, y), true);
                     return;
                 }
-                if (!PlaceFree(field, x, y, 0, ship.Decks.Length - 1)) continue;
-                SetShipLocation(ship, field, new Point(x, y), false);
-                return;
             }
             if (PlaceFree(field, realPoint.X, realPoint.Y, ship.Decks.Length - 1, 0))
             {
@@ -179,9 +193,19 @@ namespace BattleShipp
             {
                 for (var y = 0; y < verticalCells; y++)
                 {
-                    if (PlaceFree(field, x, y, shipSize - 1, 0) || PlaceFree(field, x, y, 0, shipSize - 1))
+                    if (Random.Next(2) == 0) //Рандомизация направления при поиске места для корабля
                     {
-                        return new Point(x, y);
+                        if (PlaceFree(field, x, y, shipSize - 1, 0) || PlaceFree(field, x, y, 0, shipSize - 1))
+                        {
+                            return new Point(x, y);
+                        }
+                    }
+                    else
+                    {
+                        if (PlaceFree(field, x, y, 0, shipSize - 1) || PlaceFree(field, x, y, shipSize - 1, 0))
+                        {
+                            return new Point(x, y);
+                        }
                     }
                 }
             }

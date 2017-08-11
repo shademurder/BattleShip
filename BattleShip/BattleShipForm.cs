@@ -4,9 +4,9 @@ using BattleShipp;
 
 namespace BattleShip
 {
-    public partial class Form1 : Form
+    public partial class BattleShipForm : Form
     {
-        public Form1()
+        public BattleShipForm()
         {
             InitializeComponent();
         }
